@@ -2,7 +2,7 @@ const TelegramBot = require('node-telegram-bot-api');
 const axios = require('axios');
 
 // Replace 'YOUR_TELEGRAM_BOT_TOKEN' with your actual bot token
-const botToken = '6385372377:AAGbFg4KnUd9ouCS3WgqkqLAEadDiIisrX4';
+const botToken = '6399289075:AAFmzFh6FCa41LUV6Gb2RM2cQ7j-rhFU2M8';
 const bot = new TelegramBot(botToken, { polling: true });
 
 bot.onText(/\/start/, (msg) => {
@@ -25,8 +25,13 @@ bot.onText(/\/help/, (msg) => {
 
 bot.onText(/\/price (.+)/, async (msg, match) => {
   const chatId = msg.chat.id;
-  const symbol = match[1];
+  const coin = match[1];
+  let symbol
   try {
+    const filter = await axios.get('https://api.coincap.io/v2/assets?search='+coin)
+    if(filter.data.data[0]){
+      symbol = filter.data.data[0].name.toLowerCase()
+    }
     const response = await axios.get(`https://api.coingecko.com/api/v3/simple/price?ids=${symbol}&vs_currencies=usd`);
     const price = response.data[symbol].usd;
     bot.sendMessage(chatId, `Current price of ${symbol}: $${price}`);
