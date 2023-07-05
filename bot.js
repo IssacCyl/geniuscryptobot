@@ -2,7 +2,7 @@ const TelegramBot = require('node-telegram-bot-api');
 const axios = require('axios');
 
 // Replace 'YOUR_TELEGRAM_BOT_TOKEN' with your actual bot token
-const botToken = '6399289075:AAFmzFh6FCa41LUV6Gb2RM2cQ7j-rhFU2M8';
+const botToken = '6399289075:AAFwJj1jZFNrKDJHBsj1ei2U4NmUrzmUmx4';
 const bot = new TelegramBot(botToken, { polling: true });
 
 bot.onText(/\/start/, (msg) => {
@@ -29,11 +29,8 @@ bot.onText(/\/price (.+)/, async (msg, match) => {
   let symbol
   try {
     const filter = await axios.get('https://api.coincap.io/v2/assets?search='+coin)
-    if(filter.data.data[0]){
-      symbol = filter.data.data[0].name.toLowerCase()
-    }
-    const response = await axios.get(`https://api.coingecko.com/api/v3/simple/price?ids=${symbol}&vs_currencies=usd`);
-    const price = response.data[symbol].usd;
+    const response = await axios.get(`https://api.binance.com/api/v1/ticker/price?symbol=${filter.data.data[0].symbol}USDT`)
+    const price = removeTrailingZeros(response.data['price']);
     bot.sendMessage(chatId, `Current price of ${symbol}: $${price}`);
   } catch (error) {
     bot.sendMessage(chatId, 'Failed to fetch cryptocurrency price.');
@@ -116,3 +113,20 @@ bot.onText(/\/news/, (msg) => {
   const chatId = msg.chat.id;
   bot.sendMessage(chatId, 'This command is under development. Stay tuned!');
 });
+
+function removeTrailingZeros(number) {
+  
+  // Convert the number to a string
+  let numberString = number.toString();
+
+  // Check if the number has a decimal point
+  if (numberString.includes('.')) {
+    // Remove trailing zeros
+    numberString = numberString.replace(/\.?0*$/, '');
+  }
+
+  // Convert the modified string back to a number
+  const modifiedNumber = parseFloat(numberString);
+
+  return modifiedNumber;
+}
