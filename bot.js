@@ -2,7 +2,7 @@ const TelegramBot = require('node-telegram-bot-api');
 const axios = require('axios');
 
 // Replace 'YOUR_TELEGRAM_BOT_TOKEN' with your actual bot token
-const botToken = '6399289075:AAFwJj1jZFNrKDJHBsj1ei2U4NmUrzmUmx4';
+const botToken = '';
 const bot = new TelegramBot(botToken, { polling: true });
 
 bot.onText(/\/start/, (msg) => {
@@ -31,7 +31,7 @@ bot.onText(/\/price (.+)/, async (msg, match) => {
     const filter = await axios.get('https://api.coincap.io/v2/assets?search='+coin)
     const response = await axios.get(`https://api.binance.com/api/v1/ticker/price?symbol=${filter.data.data[0].symbol}USDT`)
     const price = removeTrailingZeros(response.data['price']);
-    bot.sendMessage(chatId, `Current price of ${symbol}: $${price}`);
+    bot.sendMessage(chatId, 'Current price of ' + filter.data.data[0].name + ':' + `$${price}`);
   } catch (error) {
     bot.sendMessage(chatId, 'Failed to fetch cryptocurrency price.');
   }
